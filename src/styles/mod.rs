@@ -212,62 +212,63 @@ fn init_plain() {
 #[inline]
 fn init_themes_for_long_view() {
     let permissions_theme = hash! {
-        '-' | '.' => Color::Purple.normal(),
-        'd' => Color::Blue.bold(),
-        'l' => Color::Red.bold(),
-        'r' => Color::Green.bold(),
-        'w' => Color::Yellow.bold(),
-        'x' | 's' | 'S' | 't' | 'T' => Color::Red.bold(),
-        '@' => Color::Cyan.bold(),
+        '-' => Color::RGB(0x80, 0x80, 0x80).normal(),
+        'd' => Color::RGB(0x85, 0xd8, 0xff).normal(),
+        'l' => Color::Cyan.normal(),
+        'r' => Color::Yellow.normal(),
+        'w' => Color::RGB(0xfa, 0x80, 0x72).normal(),
+        'x' => Color::Green.normal(),
+        's' | 'S' | 't' | 'T' => Color::Red.normal(),
+        '@' => Color::Cyan.normal(),
         ' ' => Color::White.normal()
     };
     PERMISSIONS_THEME.set(permissions_theme).unwrap();
 
-    let octal_permissions_style = Color::Purple.bold();
+    let octal_permissions_style = Color::Yellow.normal();
     OCTAL_PERMISSIONS_STYLE
         .set(octal_permissions_style)
         .unwrap();
 
-    let ino_style = Color::Cyan.bold();
+    let ino_style = Color::RGB(0xd3, 0xd3, 0xd3).normal();
     INO_STYLE.set(ino_style).unwrap();
 
-    let nlink_style = Color::Red.bold();
+    let nlink_style = Color::RGB(0xdd, 0xa0, 0xdd).normal();
     NLINK_STYLE.set(nlink_style).unwrap();
 
-    let datetime_style = Color::Purple.bold();
+    let datetime_style = Color::RGB(0xad, 0xff, 0x2f).normal();
     DATETIME_STYLE.set(datetime_style).unwrap();
 
-    let owner_style = Color::Cyan.bold();
+    let owner_style = Color::Cyan.normal();
     OWNER_STYLE.set(owner_style).unwrap();
 
-    let group_style = Color::Green.bold();
+    let group_style = Color::Green.normal();
     GROUP_STYLE.set(group_style).unwrap();
 }
 
 /// Initializes all color themes.
 fn init_themes() {
     let theme = hash! {
-        "vt" => format!("{}", Color::Purple.paint(VT)),
-        "uprt" => format!("{}", Color::Purple.paint(UPRT)),
-        "drt" => format!("{}", Color::Purple.paint(DRT)),
-        "vtrt" => format!("{}", Color::Purple.paint(VTRT))
+        "vt" => format!("{}", Color::White.paint(VT)),
+        "uprt" => format!("{}", Color::White.paint(UPRT)),
+        "drt" => format!("{}", Color::White.paint(DRT)),
+        "vtrt" => format!("{}", Color::White.paint(VTRT))
     };
     TREE_THEME.set(theme).unwrap();
 
     let link_theme = hash! {
-        "vt" => format!("{}", Color::Red.paint(VT)),
-        "uprt" => format!("{}", Color::Red.paint(UPRT)),
-        "drt" => format!("{}", Color::Red.paint(DRT)),
-        "vtrt" => format!("{}", Color::Red.paint(VTRT))
+        "vt" => format!("{}", Color::White.paint(VT)),
+        "uprt" => format!("{}", Color::White.paint(UPRT)),
+        "drt" => format!("{}", Color::White.paint(DRT)),
+        "vtrt" => format!("{}", Color::White.paint(VTRT))
     };
     LINK_THEME.set(link_theme).unwrap();
 
     let du_theme = hash! {
-        "B" => Color::Cyan.bold(),
-        "KB" | "KiB" => Color::Yellow.bold(),
-        "MB" | "MiB" => Color::Green.bold(),
-        "GB" | "GiB" => Color::Red.bold(),
-        "TB" | "TiB" => Color::Blue.bold()
+        "B" => Color::RGB(0xc0, 0xc0, 0xc0).normal(),
+        "KB" | "KiB" => Color::RGB(0x90, 0xee, 0x90).normal(),
+        "MB" | "MiB" => Color::RGB(0xf0, 0xe6, 0x8c).normal(),
+        "GB" | "GiB" => Color::RGB(0xff, 0x7f, 0x50).normal(),
+        "TB" | "TiB" => Color::Red.normal()
     };
     DU_THEME.set(du_theme).unwrap();
 

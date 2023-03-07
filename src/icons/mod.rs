@@ -52,8 +52,8 @@ static DEFAULT_ICON: Lazy<(u8, &str)> = Lazy::new(|| (66, "\u{f15b}"));
 /// Dev icons sourced from [`exa`](https://github.com/ogham/exa/blob/master/src/output/icons.rs)
 static FILE_TYPE_ICON_MAP: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     hash!(
-        "dir"     => "\u{f413}", // 
-        "symlink" => "\u{f482}"  // 
+        "dir"     => "\u{f4d4}", // 
+        "symlink" => "\u{f481}"  // 
     )
 });
 
