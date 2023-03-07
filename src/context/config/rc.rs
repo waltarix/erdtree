@@ -91,7 +91,7 @@ fn config_from_xdg_path() -> Option<String> {
 
     let config_path = xdg_config
         .join(super::ERDTREE_DIR)
-        .join(super::ERDTREE_CONFIG_NAME);
+        .join(super::ERDTREE_CONFIG_NAME_XDG);
 
     fs::read_to_string(config_path).ok().or_else(|| {
         let config_path = xdg_config.join(super::ERDTREE_CONFIG_NAME);

@@ -21,6 +21,7 @@ pub enum Stamp {
 #[derive(Copy, Clone, Debug, ValueEnum, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum Format {
     /// Timestamp formatted following the iso8601, with slight differences and the time-zone omitted
+    #[default]
     Iso,
 
     /// Timestamp formatted following the exact iso8601 specifications
@@ -30,6 +31,5 @@ pub enum Format {
     Short,
 
     /// Timestamp is shown in DD MMM HH:MM format
-    #[default]
     Default,
 }
