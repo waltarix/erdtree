@@ -7,7 +7,6 @@ use crate::{
         styles::get_ls_colors,
     },
 };
-use ansi_term::Color;
 use ansi_term::Style;
 use ignore::DirEntry;
 use indextree::{Arena, Node as NodeWrapper, NodeId};
@@ -42,6 +41,7 @@ pub struct Node {
     show_icon: bool,
     style: Style,
     symlink_target: Option<PathBuf>,
+    symlink_target_style: Style,
 }
 
 impl Node {
@@ -56,6 +56,7 @@ impl Node {
         show_icon: bool,
         style: Style,
         symlink_target: Option<PathBuf>,
+        symlink_target_style: Style,
     ) -> Self {
         Self {
             depth,
@@ -67,6 +68,7 @@ impl Node {
             show_icon,
             style,
             symlink_target,
+            symlink_target_style,
         }
     }
 
@@ -151,19 +153,18 @@ impl Node {
         let path = self.symlink_target_path().unwrap_or_else(|| self.path());
 
         if let Some(icon) = self.file_type().and_then(icon_from_file_type) {
-            return Some(self.stylize(icon));
+            return Some(self.stylize_icon(icon));
         }
 
         if let Some(icon) = path.extension().and_then(icon_from_ext) {
-            return Some(self.stylize(icon));
+            return Some(self.stylize_icon(icon));
         }
 
         let file_name = self
             .symlink_target_file_name()
             .unwrap_or_else(|| self.file_name());
-
         if let Some(icon) = icon_from_file_name(file_name) {
-            return Some(self.stylize(icon));
+            return Some(self.stylize_icon(icon));
         }
 
         Some(icons::get_default_icon().to_owned())
@@ -173,10 +174,13 @@ impl Node {
     ///
     /// [`LS_COLORS`]: crate::render::styles::LS_COLORS
     fn stylize(&self, entity: &str) -> String {
-        self.style().foreground.map_or_else(
-            || entity.to_string(),
-            |fg| fg.bold().paint(entity).to_string(),
-        )
+        self.style().paint(entity).to_string()
+    }
+
+    fn stylize_icon(&self, icon: &str) -> String {
+        self.style()
+            .foreground
+            .map_or_else(|| icon.to_string(), |fg| fg.paint(icon).to_string())
     }
 
     /// Stylizes symlink name for display.
@@ -184,8 +188,8 @@ impl Node {
         self.symlink_target_file_name().map(|name| {
             let file_name = self.file_name_lossy();
             let styled_name = self.stylize(&file_name);
-            let target_name = Color::Red.paint(format!("\u{2192} {}", name.to_string_lossy()));
-            format!("{styled_name} {target_name}")
+            let target_name = self.symlink_target_style.paint(name.to_string_lossy());
+            format!("{styled_name} -> {target_name}")
         })
     }
 
@@ -213,13 +217,9 @@ impl Node {
             |size| size_loc.format(size),
         );
 
-        let icon = if self.show_icon {
-            self.get_icon().unwrap()
-        } else {
-            String::new()
-        };
-
-        let icon_padding = if icon.len() > 1 { icon.len() - 1 } else { 0 };
+        let (icon, icon_padding) = self
+            .get_icon()
+            .map_or_else(|| (String::new(), 0), |icon| (icon, 1));
 
         let styled_name = self.stylize_link_name().unwrap_or_else(|| {
             let file_name = self.file_name_lossy();
@@ -228,10 +228,20 @@ impl Node {
 
         match size_loc {
             SizeLocation::Right => {
-                write!(f, "{prefix}{icon:<icon_padding$}{styled_name} {size}")
+                write!(
+                    f,
+                    "{prefix}{icon}{:<icon_padding$}{styled_name} {size}",
+                    "",
+                    icon_padding = icon_padding
+                )
             }
             SizeLocation::Left => {
-                write!(f, "{size} {prefix}{icon:<icon_padding$}{styled_name}")
+                write!(
+                    f,
+                    "{size} {prefix}{icon}{:<icon_padding$}{styled_name}",
+                    "",
+                    icon_padding = icon_padding
+                )
             }
         }
     }
@@ -324,19 +334,26 @@ impl From<(&DirEntry, &Context)> for Node {
             .map(LS_Style::to_ansi_term_style)
             .unwrap_or_default();
 
+        let symlink_target_style = symlink_target
+            .as_ref()
+            .and_then(|path| {
+                get_ls_colors()
+                    .style_for_path(path)
+                    .map(LS_Style::to_ansi_term_style)
+            })
+            .unwrap_or_default();
+
         let mut file_size = None;
 
         if !suppress_size {
-            if let Some(ref ft) = file_type {
-                if ft.is_file() {
-                    if let Some(ref md) = metadata {
-                        file_size = match disk_usage {
-                            DiskUsage::Logical => Some(FileSize::logical(md, prefix, scale)),
-                            DiskUsage::Physical => FileSize::physical(path, md, prefix, scale),
-                        }
-                    }
-                }
-            }
+            file_type.and_then(|ft| {
+                ft.is_file().then(|| {
+                    file_size = metadata.as_ref().and_then(|md| match disk_usage {
+                        DiskUsage::Logical => Some(FileSize::logical(md, prefix, scale)),
+                        DiskUsage::Physical => FileSize::physical(path, md, prefix, scale),
+                    });
+                })
+            });
         };
 
         let inode = metadata.map(Inode::try_from).transpose().ok().flatten();
@@ -351,6 +368,7 @@ impl From<(&DirEntry, &Context)> for Node {
             icons,
             style,
             symlink_target,
+            symlink_target_style,
         )
     }
 }
