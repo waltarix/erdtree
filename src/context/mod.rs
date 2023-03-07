@@ -151,7 +151,7 @@ pub struct Context {
     pub sort: sort::Type,
 
     /// Sort directories before or after all other file types
-    #[arg(long, value_enum, default_value_t)]
+    #[arg(short = 'D', long, value_enum, default_value_t, default_missing_value = "last", num_args = 0..=1)]
     pub dir_order: dir::Order,
 
     /// Number of threads to use

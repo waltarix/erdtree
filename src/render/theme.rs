@@ -2,7 +2,7 @@ use crate::{
     styles::{self, ThemesMap},
     tree::node::Node,
 };
-use ansi_term::{Color, Style};
+use ansi_term::Style;
 use std::borrow::Cow;
 
 type Theme = Box<dyn FnMut(&Node) -> &'static ThemesMap>;
@@ -44,11 +44,12 @@ pub fn link_theme_getter() -> Theme {
 pub fn stylize_file_name(node: &Node) -> Cow<'_, str> {
     let name = node.file_name();
     let style = node.style();
+    let symlink_target_style = node.symlink_target_style();
 
     let Some(target_name) = node.symlink_target_file_name() else {
-        if let Some(Style {foreground: Some(ref fg), .. }) = style {
+        if let Some(style) = style {
             let file_name = name.to_string_lossy();
-            let styled_name = fg.bold().paint(file_name).to_string();
+            let styled_name = style.paint(file_name).to_string();
             return Cow::from(styled_name);
         }
 
@@ -57,14 +58,17 @@ pub fn stylize_file_name(node: &Node) -> Cow<'_, str> {
 
     if let Some(color) = style {
         let styled_name = color.paint(name.to_string_lossy());
-        let target_name = Color::Red.paint(format!("\u{2192} {}", target_name.to_string_lossy()));
+        let target_name = symlink_target_style.map_or_else(
+            || Style::default().paint(target_name.to_string_lossy()),
+            |style| style.paint(target_name.to_string_lossy()),
+        );
 
-        return Cow::from(format!("{styled_name} {target_name}"));
+        return Cow::from(format!("{styled_name} -> {target_name}"));
     }
 
     let link = name.to_string_lossy();
     let target = target_name.to_string_lossy();
-    Cow::from(format!("{link} \u{2192} {target}"))
+    Cow::from(format!("{link} -> {target}"))
 }
 
 /// Styles the symbolic notation of file permissions.
