@@ -9,7 +9,7 @@ use crate::{
     },
     tty,
 };
-use ansi_term::{ANSIGenericString, Color, Style};
+use ansi_term::{ANSIGenericString, Style};
 use ignore::DirEntry;
 use layout::SizeLocation;
 use lscolors::Style as LS_Style;
@@ -41,6 +41,7 @@ pub struct Node {
     style: Option<Style>,
     icon: Option<Cow<'static, str>>,
     symlink_target: Option<PathBuf>,
+    symlink_target_style: Option<Style>,
 }
 
 impl Node {
@@ -52,6 +53,7 @@ impl Node {
         style: Option<Style>,
         icon: Option<Cow<'static, str>>,
         symlink_target: Option<PathBuf>,
+        symlink_target_style: Option<Style>,
     ) -> Self {
         Self {
             dir_entry,
@@ -60,6 +62,7 @@ impl Node {
             style,
             icon,
             symlink_target,
+            symlink_target_style,
         }
     }
 
@@ -140,12 +143,16 @@ impl Node {
     /// Stylizes input, `entity` based on `LS_COLORS`. If `style` is `None` then the entity is
     /// returned unmodified.
     fn stylize<'a>(&self, entity: Cow<'a, str>) -> Cow<'a, str> {
-        if let Some(Style {
-            foreground: Some(ref fg),
-            ..
-        }) = self.style
-        {
-            Cow::from(fg.bold().paint(entity).to_string())
+        if let Some(style) = self.style {
+            Cow::from(style.paint(entity).to_string())
+        } else {
+            entity
+        }
+    }
+
+    fn stylize_link<'a>(&self, entity: Cow<'a, str>) -> Cow<'a, str> {
+        if let Some(style) = self.symlink_target_style {
+            Cow::from(style.paint(entity).to_string())
         } else {
             entity
         }
@@ -156,8 +163,8 @@ impl Node {
         self.symlink_target_file_name().map(|name| {
             let file_name = self.file_name_lossy();
             let styled_name = self.stylize(file_name);
-            let target_name = Color::Red.paint(format!("\u{2192} {}", name.to_string_lossy()));
-            Cow::from(format!("{styled_name} {target_name}"))
+            let target_name = self.stylize_link(name.to_string_lossy());
+            Cow::from(format!("{styled_name} -> {target_name}"))
         })
     }
 
@@ -187,9 +194,7 @@ impl Node {
 
         let size_padding = if size.is_empty() { "" } else { " " };
 
-        let icon = self.icon().unwrap_or("");
-
-        let icon_padding = if icon.len() > 1 { icon.len() - 1 } else { 0 };
+        let (icon, icon_padding) = self.icon().map_or_else(|| ("", 0), |icon| (icon, 1));
 
         let file_name = if ctx.no_color {
             self.file_name().to_string_lossy()
@@ -204,11 +209,18 @@ impl Node {
             SizeLocation::Right => {
                 write!(
                     f,
-                    "{prefix}{icon:<icon_padding$}{file_name}{size_padding}{size}"
+                    "{prefix}{icon}{:<icon_padding$}{file_name}{size_padding}{size}",
+                    "",
+                    icon_padding = icon_padding
                 )
             }
             SizeLocation::Left => {
-                write!(f, "{size} {prefix}{icon:<icon_padding$}{file_name}")
+                write!(
+                    f,
+                    "{size} {prefix}{icon}{:<icon_padding$}{file_name}",
+                    "",
+                    icon_padding = icon_padding
+                )
             }
         }
     }
@@ -342,12 +354,21 @@ impl TryFrom<(DirEntry, &Context)> for Node {
 
         let metadata = dir_entry.metadata()?;
 
-        let style = get_ls_colors().ok().and_then(|ls_colors| {
-            ls_colors
-                .style_for_path_with_metadata(path, Some(&metadata))
-                .map(LS_Style::to_ansi_term_style)
-                .or_else(|| Some(Style::default()))
-        });
+        let (style, symlink_target_style) = get_ls_colors().ok().map_or_else(
+            || (None, None),
+            |ls_colors| {
+                (
+                    ls_colors
+                        .style_for_path_with_metadata(path, Some(&metadata))
+                        .map(LS_Style::to_ansi_term_style),
+                    link_target.as_ref().and_then(|path| {
+                        ls_colors
+                            .style_for_path(path)
+                            .map(LS_Style::to_ansi_term_style)
+                    }),
+                )
+            },
+        );
 
         let file_type = dir_entry.file_type();
 
@@ -373,6 +394,7 @@ impl TryFrom<(DirEntry, &Context)> for Node {
             style,
             icon,
             link_target,
+            symlink_target_style,
         ))
     }
 }

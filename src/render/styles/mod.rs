@@ -83,31 +83,31 @@ fn init_ls_colors() {
 /// Initializes all color themes.
 fn init_themes() {
     let theme = hash! {
-        "vt" => format!("{}", Color::Purple.paint(VT)),
-        "uprt" => format!("{}", Color::Purple.paint(UPRT)),
-        "vtrt" => format!("{}", Color::Purple.paint(VTRT))
+        "vt" => format!("{}", Color::White.paint(VT)),
+        "uprt" => format!("{}", Color::White.paint(UPRT)),
+        "vtrt" => format!("{}", Color::White.paint(VTRT))
     };
 
     TREE_THEME.set(theme).unwrap();
 
     let link_theme = hash! {
-        "vt" => format!("{}", Color::Red.paint(VT)),
-        "uprt" => format!("{}", Color::Red.paint(UPRT)),
-        "vtrt" => format!("{}", Color::Red.paint(VTRT))
+        "vt" => format!("{}", Color::White.paint(VT)),
+        "uprt" => format!("{}", Color::White.paint(UPRT)),
+        "vtrt" => format!("{}", Color::White.paint(VTRT))
     };
 
     LINK_THEME.set(link_theme).unwrap();
 
     let du_theme = hash! {
-        "B" => Color::Cyan,
-        "KB" => Color::Yellow,
-        "KiB" => Color::Yellow,
-        "MB" => Color::Green,
-        "MiB" => Color::Green,
-        "GB" => Color::Red,
-        "GiB" => Color::Red,
-        "TB" => Color::Blue,
-        "TiB" => Color::Blue
+        "B" => Color::RGB(0xc0, 0xc0 ,0xc0),
+        "KB" => Color::RGB(0x90, 0xee, 0x90),
+        "KiB" => Color::RGB(0x90, 0xee, 0x90),
+        "MB" => Color::RGB(0xf0, 0xe6, 0x8c),
+        "MiB" => Color::RGB(0xf0, 0xe6, 0x8c),
+        "GB" => Color::RGB(0xff, 0x7f, 0x50),
+        "GiB" => Color::RGB(0xff, 0x7f, 0x50),
+        "TB" => Color::Red,
+        "TiB" => Color::Red
     };
 
     DU_THEME.set(du_theme).unwrap();
