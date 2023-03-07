@@ -104,10 +104,8 @@ impl Tree {
 
                     // If a hard-link is already accounted for, skip all subsequent ones.
                     if let Some(inode) = node.inode() {
-                        if inode.nlink > 1 {
-                            if !inodes.insert(inode.properties()) {
-                                continue;
-                            }
+                        if inode.nlink > 1 && !inodes.insert(inode.properties()) {
+                            continue;
                         }
                     }
 
@@ -115,9 +113,10 @@ impl Tree {
 
                     let node_id = tree.new_node(node);
 
-                    if let None = branches
+                    if branches
                         .get_mut(&parent)
                         .map(|mut_ref| mut_ref.push(node_id))
+                        .is_none()
                     {
                         branches.insert(parent, vec![]);
                     }
@@ -201,10 +200,8 @@ impl Tree {
         for node_id in root_id.descendants(tree) {
             let node = Node::get(node_id, tree).unwrap();
 
-            if node.is_dir() {
-                if node_id.children(tree).peekable().peek().is_none() {
-                    to_prune.push(node_id);
-                }
+            if node.is_dir() && node_id.children(tree).peekable().peek().is_none() {
+                to_prune.push(node_id);
             }
         }
 
@@ -255,10 +252,10 @@ impl Display for Tree {
                 node.display_size_right(f, base_prefix, ctx)?;
             }
 
-            writeln!(f, "")
+            writeln!(f)
         }
 
-        display_node(&root_node, "", ctx, f)?;
+        display_node(root_node, "", ctx, f)?;
 
         let mut prefix_components = vec!["".to_owned()];
 
@@ -286,7 +283,7 @@ impl Display for Tree {
             let prefix = current_prefix_components.join("");
 
             if current_node.depth <= level {
-                display_node(&current_node, &prefix, ctx, f)?;
+                display_node(current_node, &prefix, ctx, f)?;
             }
 
             if let Some(next_id) = descendants.peek() {

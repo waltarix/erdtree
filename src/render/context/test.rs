@@ -28,7 +28,8 @@ fn config() {
 
 fn context_from_config() -> Option<Context> {
     if let Some(ref config) = config::read_config_to_string(Some(TEST_CONFIG)) {
-        let raw_config_args = config::parse_config(config);
+        let mut raw_config_args = config::parse_config(config);
+        raw_config_args.insert(0, "--");
         let config_args = Context::command().get_matches_from(raw_config_args);
         Context::from_arg_matches(&config_args).ok()
     } else {
