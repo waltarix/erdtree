@@ -1,6 +1,6 @@
 use super::disk_usage::{file_size::DiskUsage, units::PrefixKind};
 use crate::tty;
-use clap::{parser::ValueSource, ArgMatches, CommandFactory, FromArgMatches, Id, Parser};
+use clap::{ArgMatches, CommandFactory, FromArgMatches, Id, Parser};
 use color::Coloring;
 use error::Error;
 use ignore::{
@@ -11,7 +11,7 @@ use regex::Regex;
 use std::{
     borrow::Borrow,
     convert::From,
-    ffi::{OsStr, OsString},
+    ffi::OsString,
     path::{Path, PathBuf},
 };
 
@@ -145,7 +145,7 @@ pub struct Context {
     pub sort: sort::Type,
 
     /// Sort directories before or after all other file types
-    #[arg(long, value_enum, default_value_t)]
+    #[arg(short = 'D', long, value_enum, default_value_t, default_missing_value = "last", num_args = 0..=1)]
     pub dir_order: dir::Order,
 
     /// Number of threads to use
@@ -267,58 +267,20 @@ impl Context {
             return Self::from_arg_matches(&user_args).map_err(Error::ArgParse);
         }
 
-        if let Some(ref config) = config::read_config_to_string::<&str>(None) {
-            let raw_config_args = config::parse(config);
-            let config_args = Self::command().get_matches_from(raw_config_args);
-
-            // If the user did not provide any arguments just read from config.
-            if !user_args.args_present() {
-                return Self::from_arg_matches(&config_args).map_err(Error::Config);
-            }
-
-            // If the user did provide arguments we need to reconcile between config and
-            // user arguments.
-            let mut args = vec![OsString::from("--")];
-
-            let mut ids = user_args.as_vec_of_str();
-
-            ids.extend(config_args.as_vec_of_str());
-
-            ids = crate::utils::uniq(ids);
-
-            // HACK:
-            // Going to need to figure out how to handle this better.
-            for id in ids
-                .into_iter()
-                .filter(|&id| id != "Context" && id != "group" && id != "searching")
-            {
-                if id == "dir" {
-                    if let Ok(Some(raw)) = user_args.try_get_raw(id) {
-                        let raw_args = raw.map(OsStr::to_owned).collect::<Vec<OsString>>();
-
-                        args.extend(raw_args);
-                        continue;
-                    }
-                }
-
-                if let Some(user_arg) = user_args.value_source(id) {
-                    match user_arg {
-                        // prioritize the user arg if user provided a command line argument
-                        ValueSource::CommandLine => Self::pick_args_from(id, &user_args, &mut args),
-
-                        // otherwise prioritize argument from the config
-                        _ => Self::pick_args_from(id, &config_args, &mut args),
-                    }
-                } else {
-                    Self::pick_args_from(id, &config_args, &mut args);
-                }
-            }
-
-            let clargs = Self::command().get_matches_from(args);
-            return Self::from_arg_matches(&clargs).map_err(Error::Config);
-        }
-
-        Self::from_arg_matches(&user_args).map_err(Error::ArgParse)
+        config::read_config_to_string::<&str>(None)
+            .as_ref()
+            .map_or_else(
+                || Self::from_arg_matches(&user_args).map_err(Error::ArgParse),
+                |config| {
+                    let raw_config_args = config::parse(config);
+                    let mut args: Vec<_> = std::env::args_os().collect();
+                    args.splice(1..1, raw_config_args.iter().map(OsString::from));
+                    let config_args = Self::command()
+                        .args_override_self(true)
+                        .get_matches_from(args);
+                    Self::from_arg_matches(&config_args).map_err(Error::Config)
+                },
+            )
     }
 
     /// Determines whether or not it's appropriate to display color in output based on
@@ -366,23 +328,6 @@ impl Context {
     /// Which `FileType` to filter on; defaults to regular file.
     pub fn file_type(&self) -> file::Type {
         self.file_type.unwrap_or_default()
-    }
-
-    /// Used to pick either from config or user args when constructing [Context].
-    fn pick_args_from(id: &str, matches: &ArgMatches, args: &mut Vec<OsString>) {
-        if let Ok(Some(raw)) = matches.try_get_raw(id) {
-            let kebap = id.replace('_', "-");
-
-            let raw_args = raw
-                .map(OsStr::to_owned)
-                .map(|s| vec![OsString::from(format!("--{kebap}")), s])
-                .filter(|pair| pair[1] != "false")
-                .flatten()
-                .filter(|s| s != "true")
-                .collect::<Vec<_>>();
-
-            args.extend(raw_args);
-        }
     }
 
     /// Predicate used for filtering via regular expressions and file-type. When matching regular

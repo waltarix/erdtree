@@ -17,7 +17,7 @@ impl FileType {
     pub const fn identifier(&self) -> char {
         match self {
             Self::Directory => 'd',
-            Self::File => '.',
+            Self::File => '-',
             Self::Symlink => 'l',
             Self::Fifo => 'p',
             Self::Socket => 's',
@@ -31,6 +31,7 @@ impl FileType {
 impl TryFrom<u32> for FileType {
     type Error = Error;
 
+    #[allow(clippy::useless_conversion)]
     fn try_from(mode: u32) -> Result<Self, Self::Error> {
         let file_mask = mode & u32::from(libc::S_IFMT);
 
