@@ -1,4 +1,8 @@
-use crate::render::{context::Context, disk_usage::FileSize, order::Order};
+use crate::render::{
+    context::Context,
+    disk_usage::FileSize,
+    order::{Order, SortType},
+};
 use crossbeam::channel::{self, Sender};
 use error::Error;
 use ignore::{WalkBuilder, WalkParallel, WalkState};
@@ -149,7 +153,7 @@ impl Tree {
     fn assemble_tree(current_node: &mut Node, branches: &mut Branches, ctx: &Context) {
         let children = branches.remove(current_node.path()).unwrap();
 
-        if children.len() > 0 {
+        if !children.is_empty() {
             current_node.set_children(children);
         }
 
@@ -169,9 +173,9 @@ impl Tree {
             current_node.set_file_size(dir_size)
         }
 
-        if let Some(ordr) = ctx.sort().map(|s| Order::from((s, ctx.dirs_first()))) {
-            ordr.comparator()
-                .map(|func| current_node.sort_children(func));
+        let sort = ctx.sort().unwrap_or(SortType::Name);
+        if let Some(func) = Order::from((sort, ctx.dirs_first())).comparator() {
+            current_node.sort_children(func)
         }
     }
 }
@@ -214,7 +218,7 @@ impl Display for Tree {
             base_prefix: &str,
             level: usize,
             theme: &ui::ThemesMap,
-            prune: bool,
+            _prune: bool,
         ) {
             let mut peekable = children.peekable();
 
@@ -241,10 +245,8 @@ impl Display for Tree {
 
                         let mut new_base = base_prefix.to_owned();
 
-                        let new_theme = child
-                            .is_symlink()
-                            .then(|| ui::get_link_theme())
-                            .unwrap_or(theme);
+                        let new_theme =
+                            child.is_symlink().then(ui::get_link_theme).unwrap_or(theme);
 
                         if last_entry {
                             new_base.push_str(ui::SEP);
@@ -252,7 +254,7 @@ impl Display for Tree {
                             new_base.push_str(theme.get("vt").unwrap());
                         }
 
-                        traverse(output, children, &new_base, level, new_theme, prune);
+                        traverse(output, children, &new_base, level, new_theme, _prune);
                     }
 
                     continue;

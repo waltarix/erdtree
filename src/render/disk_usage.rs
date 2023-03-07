@@ -103,30 +103,34 @@ impl Display for FileSize {
                 let log = fbytes.log(2.0);
 
                 if log < 10.0 {
-                    Color::Cyan.paint(format!("{} {}", self.bytes, BinPrefix::Base))
+                    Color::RGB(0xc0, 0xc0, 0xc0).paint(format!(
+                        "{} {}",
+                        self.bytes,
+                        BinPrefix::Base
+                    ))
                 } else if (10.0..20.0).contains(&log) {
-                    Color::Yellow.paint(format!(
+                    Color::RGB(0x90, 0xee, 0x90).paint(format!(
                         "{:.scale$} {}",
                         fbytes / 1024.0_f64,
                         BinPrefix::Kibi,
                         scale = self.scale
                     ))
                 } else if (20.0..30.0).contains(&log) {
-                    Color::Green.paint(format!(
+                    Color::RGB(0xf0, 0xe6, 0x8c).paint(format!(
                         "{:.scale$} {}",
                         fbytes / 1024.0_f64.powi(2),
                         BinPrefix::Mebi,
                         scale = self.scale
                     ))
                 } else if (30.0..40.0).contains(&log) {
-                    Color::Red.paint(format!(
+                    Color::RGB(0xff, 0x7f, 0x50).paint(format!(
                         "{:.scale$} {}",
                         fbytes / 1024.0_f64.powi(3),
                         BinPrefix::Gibi,
                         scale = self.scale
                     ))
                 } else {
-                    Color::Blue.paint(format!(
+                    Color::Red.paint(format!(
                         "{:.scale$} {}",
                         fbytes / 1024.0_f64.powi(4),
                         BinPrefix::Tebi,
@@ -139,23 +143,23 @@ impl Display for FileSize {
                 let log = fbytes.log(10.0);
 
                 if log < 3.0 {
-                    Color::Cyan.paint(format!("{} {}", fbytes, SiPrefix::Base))
+                    Color::RGB(0xc0, 0xc0, 0xc0).paint(format!("{} {}", fbytes, SiPrefix::Base))
                 } else if (3.0..6.0).contains(&log) {
-                    Color::Yellow.paint(format!(
+                    Color::RGB(0x90, 0xee, 0x90).paint(format!(
                         "{:.scale$} {}",
                         fbytes / 10.0_f64.powi(3),
                         SiPrefix::Kilo,
                         scale = self.scale
                     ))
                 } else if (6.0..9.0).contains(&log) {
-                    Color::Green.paint(format!(
+                    Color::RGB(0xf0, 0xe6, 0x8c).paint(format!(
                         "{:.scale$} {}",
                         fbytes / 10.0_f64.powi(6),
                         SiPrefix::Mega,
                         scale = self.scale
                     ))
                 } else if (9.0..12.0).contains(&log) {
-                    Color::Green.paint(format!(
+                    Color::RGB(0xff, 0x7f, 0x50).paint(format!(
                         "{:.scale$} {}",
                         fbytes / 10.0_f64.powi(9),
                         SiPrefix::Giga,

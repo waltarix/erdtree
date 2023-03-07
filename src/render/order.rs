@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 use super::tree::node::Node;
 use clap::ValueEnum;
 use std::{cmp::Ordering, convert::From};

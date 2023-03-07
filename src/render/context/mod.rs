@@ -2,11 +2,12 @@ use super::{
     disk_usage::{DiskUsage, PrefixKind},
     order::SortType,
 };
-use clap::{ArgMatches, CommandFactory, Error as ClapError, FromArgMatches, Parser};
+use clap::{CommandFactory, Error as ClapError, FromArgMatches, Parser};
 use ignore::overrides::{Override, OverrideBuilder};
 use std::{
     convert::From,
     error::Error as StdError,
+    ffi::OsString,
     fmt::{self, Display},
     path::{Path, PathBuf},
     usize,
@@ -82,7 +83,7 @@ pub struct Context {
     sort: Option<SortType>,
 
     /// Always sorts directories above files
-    #[arg(long)]
+    #[arg(short = 'D', long)]
     dirs_first: bool,
 
     /// Traverse symlink directories and consider their disk usage; disabled by default
@@ -106,37 +107,32 @@ impl Context {
     /// Initializes [Context], optionally reading in the configuration file to override defaults.
     /// Arguments provided will take precedence over config.
     pub fn init() -> Result<Self, Error> {
-        let mut clargs = Context::command().args_override_self(true).get_matches();
+        let clargs = Context::command().args_override_self(true).get_matches();
 
         let no_config = clargs
             .get_one("no_config")
             .map(bool::clone)
             .unwrap_or(false);
+        if no_config {
+            return Context::from_arg_matches(&clargs).map_err(Error::ArgParse);
+        }
 
-        let context = {
-            if no_config {
-                Context::from_arg_matches(&clargs).map_err(|e| Error::ArgParse(e))?
-            } else {
-                if let Some(ref config) = config::read_config_to_string::<&str>(None) {
+        config::read_config_to_string::<&str>(None)
+            .as_ref()
+            .map_or_else(
+                || Context::from_arg_matches(&clargs).map_err(Error::ArgParse),
+                |config| {
                     let raw_config_args = config::parse_config(config);
-                    let config_args = Context::command().get_matches_from(raw_config_args);
+                    let mut args: Vec<_> = std::env::args_os().collect();
+                    args.splice(1..1, raw_config_args.iter().map(OsString::from));
 
-                    let mut ctx =
-                        Context::from_arg_matches(&config_args).map_err(|e| Error::Config(e))?;
+                    let config_args = Context::command()
+                        .args_override_self(true)
+                        .get_matches_from(&args);
 
-                    Self::remove_bool_opts(&mut clargs);
-
-                    ctx.update_from_arg_matches(&clargs)
-                        .map_err(|e| Error::ArgParse(e))?;
-
-                    ctx
-                } else {
-                    Context::from_arg_matches(&clargs).map_err(|e| Error::ArgParse(e))?
-                }
-            }
-        };
-
-        Ok(context)
+                    Context::from_arg_matches(&config_args).map_err(Error::Config)
+                },
+            )
     }
 
     /// Returns reference to the path of the root directory to be traversed.
@@ -189,39 +185,6 @@ impl Context {
         }
 
         builder.build()
-    }
-
-    /// This is an unfortunate hack to remove default boolean arguments that override the config
-    /// defaults. Basically how it works is we parse the os args normally, create a [Context] from
-    /// the config file, then we update the [Context] with the os args; the problem is that the os
-    /// args come with defaults from [clap] which are all false which then overrides the config. A
-    /// problem for later.
-    fn remove_bool_opts(args: &mut ArgMatches) {
-        let mut remove_if_default = |arg| {
-            let enabled = args
-                .try_get_one::<bool>(arg)
-                .ok()
-                .flatten()
-                .map(bool::clone)
-                .unwrap_or(true);
-
-            if !enabled {
-                let _ = args.try_remove_occurrences::<bool>(arg);
-            }
-        };
-
-        remove_if_default("icons");
-        remove_if_default("I");
-        remove_if_default("glob_case_insensitive");
-        remove_if_default("hidden");
-        remove_if_default("ignore-git");
-        remove_if_default("ignore-git-ignore");
-        remove_if_default("i");
-        remove_if_default("prune");
-        remove_if_default("dirs_first");
-        remove_if_default("follow_links");
-        remove_if_default("S");
-        remove_if_default("suppress_size");
     }
 }
 

@@ -8,7 +8,6 @@ use crate::{
         order::NodeComparator,
     },
 };
-use ansi_term::Color;
 use ansi_term::Style;
 use ignore::DirEntry;
 use lscolors::Style as LS_Style;
@@ -40,9 +39,11 @@ pub struct Node {
     show_icon: bool,
     style: Style,
     symlink_target: Option<PathBuf>,
+    symlink_target_style: Style,
 }
 
 impl Node {
+    #[allow(clippy::too_many_arguments)]
     /// Initializes a new [Node].
     pub fn new(
         depth: usize,
@@ -55,6 +56,7 @@ impl Node {
         show_icon: bool,
         style: Style,
         symlink_target: Option<PathBuf>,
+        symlink_target_style: Style,
     ) -> Self {
         Self {
             children,
@@ -67,6 +69,7 @@ impl Node {
             show_icon,
             style,
             symlink_target,
+            symlink_target_style,
         }
     }
 
@@ -92,7 +95,7 @@ impl Node {
 
     /// Whether or not a [Node] has children.
     pub fn has_children(&self) -> bool {
-        self.children.len() > 0
+        !self.children.is_empty()
     }
 
     /// Recursively traverse [Node]s, removing any [Node]s that have no children.
@@ -121,7 +124,7 @@ impl Node {
     pub fn file_name_lossy(&self) -> Cow<'_, str> {
         self.file_name()
             .to_str()
-            .map_or_else(|| self.file_name().to_string_lossy(), |s| Cow::from(s))
+            .map_or_else(|| self.file_name().to_string_lossy(), Cow::from)
     }
 
     /// Returns `true` if node is a directory.
@@ -136,14 +139,12 @@ impl Node {
 
     /// Path to symlink target.
     pub fn symlink_target_path(&self) -> Option<&Path> {
-        self.symlink_target.as_ref().map(PathBuf::as_path)
+        self.symlink_target.as_deref()
     }
 
     /// Returns the file name of the symlink target if [Node] represents a symlink.
     pub fn symlink_target_file_name(&self) -> Option<&OsStr> {
-        self.symlink_target_path()
-            .map(|path| path.file_name())
-            .flatten()
+        self.symlink_target_path().and_then(|path| path.file_name())
     }
 
     /// Returns reference to underlying [FileType].
@@ -199,11 +200,11 @@ impl Node {
 
         let path = self.symlink_target_path().unwrap_or_else(|| self.path());
 
-        if let Some(icon) = path.extension().map(icon_from_ext).flatten() {
+        if let Some(icon) = path.extension().and_then(icon_from_ext) {
             return Some(self.stylize(icon));
         }
 
-        if let Some(icon) = self.file_type().map(icon_from_file_type).flatten() {
+        if let Some(icon) = self.file_type().and_then(icon_from_file_type) {
             return Some(self.stylize(icon));
         }
 
@@ -222,10 +223,7 @@ impl Node {
     ///
     /// [`LS_COLORS`]: super::ui::LS_COLORS
     fn stylize(&self, entity: &str) -> String {
-        self.style().foreground.map_or_else(
-            || entity.to_string(),
-            |fg| fg.bold().paint(entity).to_string(),
-        )
+        self.style().paint(entity).to_string()
     }
 
     /// Stylizes symlink name for display.
@@ -233,8 +231,8 @@ impl Node {
         self.symlink_target_file_name().map(|name| {
             let file_name = self.file_name_lossy();
             let styled_name = self.stylize(&file_name);
-            let target_name = Color::Red.paint(format!("\u{2192} {}", name.to_string_lossy()));
-            format!("{} {}", styled_name, target_name)
+            let target_name = self.symlink_target_style.paint(name.to_string_lossy());
+            format!("{} -> {}", styled_name, target_name)
         })
     }
 }
@@ -251,9 +249,9 @@ impl From<(&DirEntry, &Context)> for Node {
             ..
         } = ctx;
 
-        let scale = scale.clone();
-        let prefix = prefix.clone();
-        let icons = icons.clone();
+        let scale = *scale;
+        let prefix = *prefix;
+        let icons = *icons;
 
         let children = vec![];
 
@@ -282,19 +280,25 @@ impl From<(&DirEntry, &Context)> for Node {
             .map(LS_Style::to_ansi_term_style)
             .unwrap_or_default();
 
-        let mut file_size = None;
+        let symlink_target_style = symlink_target
+            .as_ref()
+            .and_then(|path| {
+                get_ls_colors()
+                    .style_for_path(path)
+                    .map(LS_Style::to_ansi_term_style)
+            })
+            .unwrap_or_default();
 
+        let mut file_size = None;
         if !suppress_size {
-            if let Some(ref ft) = file_type {
-                if ft.is_file() {
-                    if let Some(ref md) = metadata {
-                        file_size = match disk_usage {
-                            DiskUsage::Logical => Some(FileSize::logical(md, prefix, scale)),
-                            DiskUsage::Physical => FileSize::physical(path, md, prefix, scale),
-                        }
-                    }
-                }
-            }
+            file_type.and_then(|ft| {
+                ft.is_file().then(|| {
+                    file_size = metadata.as_ref().and_then(|md| match disk_usage {
+                        DiskUsage::Logical => Some(FileSize::logical(md, prefix, scale)),
+                        DiskUsage::Physical => FileSize::physical(path, md, prefix, scale),
+                    })
+                })
+            });
         };
 
         let inode = metadata.map(Inode::try_from).transpose().ok().flatten();
@@ -310,47 +314,35 @@ impl From<(&DirEntry, &Context)> for Node {
             icons,
             style,
             symlink_target,
+            symlink_target_style,
         )
     }
 }
 
 impl Display for Node {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let size = self
-            .file_size()
-            .map(|size| format!("({})", size))
-            .or_else(|| Some("".to_owned()))
-            .unwrap();
+        let size = match self.file_size() {
+            Some(size) => format!("({})", size),
+            None => "".to_owned(),
+        };
 
-        let icon = self
-            .show_icon
-            .then(|| self.get_icon())
-            .flatten()
-            .unwrap_or("".to_owned());
+        let (icon, icon_padding) = match self.get_icon() {
+            Some(icon) => (icon, 1),
+            None => ("".to_owned(), 0),
+        };
 
-        let icon_padding = (icon.len() > 1).then(|| icon.len() - 1).unwrap_or(0);
-
-        let (styled_name, name_padding) = self
-            .stylize_link_name()
-            .map(|name| {
-                let padding = name.len() - 1;
-                (name, padding)
-            })
-            .or_else(|| {
+        let styled_name = match self.stylize_link_name() {
+            Some(name) => name,
+            None => {
                 let file_name = self.file_name_lossy();
-                let name = self.stylize(&file_name);
-                let padding = name.len() + 1;
-
-                Some((name, padding))
-            })
-            .unwrap();
+                self.stylize(&file_name)
+            }
+        };
 
         let output = format!(
-            "{:<icon_padding$}{:<name_padding$}{size}",
-            icon,
-            styled_name,
+            "{icon}{:<icon_padding$}{styled_name} {size}",
+            "",
             icon_padding = icon_padding,
-            name_padding = name_padding
         );
 
         write!(f, "{output}")
