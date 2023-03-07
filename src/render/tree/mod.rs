@@ -206,10 +206,10 @@ impl Display for Tree {
         ) -> fmt::Result {
             if ctx.size_left && !ctx.suppress_size {
                 node.display_size_left(f, prefix, ctx)?;
-                writeln!(f, "")
+                writeln!(f)
             } else {
                 node.display_size_right(f, prefix, ctx)?;
-                writeln!(f, "")
+                writeln!(f)
             }
         }
 

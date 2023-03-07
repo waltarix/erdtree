@@ -15,7 +15,7 @@ pub enum Error {
     ExpectedParent,
     InvalidGlobPatterns(IgnoreError),
     MissingRoot,
-    PathCanonicalizationError(IoError),
+    PathCanonicalization(IoError),
 }
 
 impl Display for Error {
@@ -25,7 +25,7 @@ impl Display for Error {
             Error::ExpectedParent => write!(f, "File expected to have parent"),
             Error::InvalidGlobPatterns(e) => write!(f, "Invalid glob patterns: {e}"),
             Error::MissingRoot => write!(f, "Failed to compute root node"),
-            Error::PathCanonicalizationError(e) => write!(f, "{e}"),
+            Error::PathCanonicalization(e) => write!(f, "{e}"),
         }
     }
 }
@@ -40,6 +40,6 @@ impl From<ignore::Error> for Error {
 
 impl From<IoError> for Error {
     fn from(value: IoError) -> Self {
-        Self::PathCanonicalizationError(value)
+        Self::PathCanonicalization(value)
     }
 }

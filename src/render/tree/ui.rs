@@ -68,9 +68,9 @@ fn init_ls_colors() {
 /// Initializes [THEME].
 fn init_themes() {
     let theme = hash! {
-        "vt" => format!("{}", Color::Purple.paint(VT)),
-        "uprt" => format!("{}", Color::Purple.paint(UPRT)),
-        "vtrt" => format!("{}", Color::Purple.paint(VTRT))
+        "vt" => format!("{}", Color::White.paint(VT)),
+        "uprt" => format!("{}", Color::White.paint(UPRT)),
+        "vtrt" => format!("{}", Color::White.paint(VTRT))
     };
 
     THEME.set(theme).unwrap();

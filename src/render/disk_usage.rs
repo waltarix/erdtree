@@ -119,31 +119,31 @@ impl FileSize {
                 let log = fbytes.log2();
                 if log < 10. {
                     (
-                        Color::Cyan,
+                        Color::RGB(0xc0, 0xc0, 0xc0),
                         format!("{}", self.bytes),
                         format!("{}", BinPrefix::Base),
                     )
                 } else if log < 20. {
                     (
-                        Color::Yellow,
+                        Color::RGB(0x90, 0xee, 0x90),
                         format!("{:.scale$}", fbytes / 1024.0_f64.powi(1),),
                         format!("{}", BinPrefix::Kibi),
                     )
                 } else if log < 30. {
                     (
-                        Color::Green,
+                        Color::RGB(0xf0, 0xe6, 0x8c),
                         format!("{:.scale$}", fbytes / 1024.0_f64.powi(2),),
                         format!("{}", BinPrefix::Mebi),
                     )
                 } else if log < 40. {
                     (
-                        Color::Red,
+                        Color::RGB(0xff, 0x7f, 0x50),
                         format!("{:.scale$}", fbytes / 1024.0_f64.powi(3),),
                         format!("{}", BinPrefix::Gibi),
                     )
                 } else {
                     (
-                        Color::Blue,
+                        Color::Red,
                         format!("{:.scale$}", fbytes / 1024.0_f64.powi(4),),
                         format!("{}", BinPrefix::Tebi),
                     )
@@ -153,31 +153,31 @@ impl FileSize {
                 let log = fbytes.log10();
                 if log < 3. {
                     (
-                        Color::Cyan,
+                        Color::RGB(0xc0, 0xc0, 0xc0),
                         format!("{}", self.bytes),
                         format!("{}", SiPrefix::Base),
                     )
                 } else if log < 6. {
                     (
-                        Color::Yellow,
+                        Color::RGB(0x90, 0xee, 0x90),
                         format!("{:.scale$}", fbytes / 10.0_f64.powi(3),),
                         format!("{}", SiPrefix::Kilo),
                     )
                 } else if log < 9. {
                     (
-                        Color::Green,
+                        Color::RGB(0xf0, 0xe6, 0x8c),
                         format!("{:.scale$}", fbytes / 10.0_f64.powi(6),),
                         format!("{}", SiPrefix::Mega),
                     )
                 } else if log < 12. {
                     (
-                        Color::Red,
+                        Color::RGB(0xff, 0x7f, 0x50),
                         format!("{:.scale$}", fbytes / 10.0_f64.powi(9),),
                         format!("{}", SiPrefix::Giga),
                     )
                 } else {
                     (
-                        Color::Blue,
+                        Color::Red,
                         format!("{:.scale$}", fbytes / 10.0_f64.powi(12),),
                         format!("{}", SiPrefix::Tera),
                     )
