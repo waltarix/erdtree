@@ -167,7 +167,7 @@ impl Tree {
 
         let mut dir_size = FileSize::new(0, disk_usage.clone(), scale);
 
-        current_node.children_mut().map(|nodes| {
+        if let Some(nodes) = current_node.children_mut() {
             nodes.iter_mut().for_each(|node| {
                 if node.is_dir() {
                     Self::assemble_tree(node, branches, order, disk_usage, scale);
@@ -177,7 +177,7 @@ impl Tree {
                     dir_size += fs
                 }
             })
-        });
+        };
 
         if dir_size.bytes > 0 {
             current_node.set_file_size(dir_size)
@@ -245,10 +245,8 @@ impl Display for Tree {
                     if let Some(iter_children) = child.children() {
                         let mut new_base = base_prefix.to_owned();
 
-                        let new_theme = child
-                            .is_symlink()
-                            .then(|| ui::get_link_theme())
-                            .unwrap_or(theme);
+                        let new_theme =
+                            child.is_symlink().then(ui::get_link_theme).unwrap_or(theme);
 
                         if last_entry {
                             new_base.push_str(ui::SEP);

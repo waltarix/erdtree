@@ -103,18 +103,18 @@ static EXT_ICON_MAP: Lazy<HashMap<OsString, String>> = Lazy::new(|| {
         OsString::from("cpp")           => col(67, "\u{e61d}"),    // 
         OsString::from("cpy")           => col(25, "\u{2699}"),    // ⚙
         OsString::from("cr")            => col(16, "\u{e24f}"),    // 
-        OsString::from("cs")            => col(58, "\u{f81a}"),    // 
+        OsString::from("cs")            => col(58, "\u{f031b}"),    // 󰌛
         OsString::from("csh")           => col(59, "\u{e795}"),    // 
         OsString::from("cson")          => col(185, "\u{e60b}"),   // 
         OsString::from("css")           => col(39, "\u{e749}"),    // 
-        OsString::from("csv")           => col(113, "\u{f718}"),   // 
+        OsString::from("csv")           => col(113, "\u{f0219}"),   // 󰈙
         OsString::from("cxx")           => col(67, "\u{e61d}"),    // 
         OsString::from("dart")          => col(25, "\u{e798}"),    // 
         OsString::from("db")            => col(188, "\u{e706}"),   // 
         OsString::from("d")             => col(64, "\u{e7af}"),    // 
         OsString::from("desktop")       => col(60, "\u{f108}"),    // 
         OsString::from("diff")          => col(59, "\u{e728}"),    // 
-        OsString::from("doc")           => col(25, "\u{f72b}"),    // 
+        OsString::from("doc")           => col(25, "\u{f022c}"),    // 󰈬
         OsString::from("drl")           => col(217, "\u{e28c}"),   // 
         OsString::from("dropbox")       => col(27, "\u{e707}"),    // 
         OsString::from("dump")          => col(188, "\u{e706}"),   // 
@@ -163,7 +163,7 @@ static EXT_ICON_MAP: Lazy<HashMap<OsString, String>> = Lazy::new(|| {
         OsString::from("jpeg")          => col(140, "\u{e60d}"),   // 
         OsString::from("jpg")           => col(140, "\u{e60d}"),   // 
         OsString::from("js")            => col(185, "\u{e60c}"),   // 
-        OsString::from("json5")         => col(185, "\u{fb25}"),   // ﬥ
+        OsString::from("json5")         => col(185, "\u{f0626}"),   // 󰘦
         OsString::from("json")          => col(185, "\u{e60b}"),   // 
         OsString::from("jsx")           => col(67, "\u{e625}"),    // 
         OsString::from("ksh")           => col(59, "\u{e795}"),    // 
@@ -175,16 +175,16 @@ static EXT_ICON_MAP: Lazy<HashMap<OsString, String>> = Lazy::new(|| {
         OsString::from("license")       => col(185, "\u{e60a}"),   // 
         OsString::from("licence")       => col(185, "\u{e60a}"),   // 
         OsString::from("lock")          => col(250, "\u{f13e}"),   // 
-        OsString::from("log")           => col(255, "\u{f831}"),   // 
+        OsString::from("log")           => col(255, "\u{f0332}"),   // 󰌲
         OsString::from("lua")           => col(74, "\u{e620}"),    // 
         OsString::from("luau")          => col(74, "\u{e620}"),    // 
         OsString::from("makefile")      => col(66, "\u{e779}"),    // 
         OsString::from("markdown")      => col(67, "\u{e609}"),    // 
         OsString::from("Makefile")      => col(66, "\u{e779}"),    // 
-        OsString::from("material")      => col(132, "\u{f7f4}"),   // 
+        OsString::from("material")      => col(132, "\u{f02f5}"),   // 󰋵
         OsString::from("md")            => col(255, "\u{f48a}"),   // 
         OsString::from("mdx")           => col(67, "\u{f48a}"),    // 
-        OsString::from("mint")          => col(108, "\u{f829}"),   // 
+        OsString::from("mint")          => col(108, "\u{f032a}"),   // 󰌪
         OsString::from("mjs")           => col(221, "\u{e60c}"),   // 
         OsString::from("mk")            => col(66, "\u{e779}"),    // 
         OsString::from("ml")            => col(173, "\u{3bb}"),    // λ
@@ -193,16 +193,16 @@ static EXT_ICON_MAP: Lazy<HashMap<OsString, String>> = Lazy::new(|| {
         OsString::from("mustache")      => col(173, "\u{e60f}"),   // 
         OsString::from("nim")           => col(220, "\u{1f451}"),  // 👑
         OsString::from("nix")           => col(110, "\u{f313}"),   // 
-        OsString::from("opus")          => col(208, "\u{f722}"),   // 
+        OsString::from("opus")          => col(208, "\u{f0223}"),   // 󰈣
         OsString::from("otf")           => col(231, "\u{f031}"),   // 
         OsString::from("pck")           => col(66, "\u{f487}"),    // 
-        OsString::from("pdf")           => col(124, "\u{f724}"),   // 
+        OsString::from("pdf")           => col(124, "\u{f0225}"),   // 󰈥
         OsString::from("php")           => col(140, "\u{e608}"),   // 
         OsString::from("pl")            => col(67, "\u{e769}"),    // 
         OsString::from("pm")            => col(67, "\u{e769}"),    // 
         OsString::from("png")           => col(140, "\u{e60d}"),   // 
         OsString::from("pp")            => col(255, "\u{e631}"),   // 
-        OsString::from("ppt")           => col(167, "\u{f726}"),   // 
+        OsString::from("ppt")           => col(167, "\u{f0227}"),   // 󰈧
         OsString::from("prisma")        => col(255, "\u{5351}"),   // 卑
         OsString::from("pro")           => col(179, "\u{e7a1}"),   // 
         OsString::from("ps1")           => col(69, "\u{f0a0a}"),   // 󰨊
@@ -217,7 +217,7 @@ static EXT_ICON_MAP: Lazy<HashMap<OsString, String>> = Lazy::new(|| {
         OsString::from("query")         => col(154, "\u{e21c}"),   // 
         OsString::from("rake")          => col(52, "\u{e791}"),    // 
         OsString::from("rb")            => col(52, "\u{e791}"),    // 
-        OsString::from("r")             => col(65, "\u{fcd2}"),    // ﳒ
+        OsString::from("r")             => col(65, "\u{f07d3}"),    // 󰟓
         OsString::from("rlib")          => col(180, "\u{e7a8}"),   // 
         OsString::from("rmd")           => col(67, "\u{e609}"),    // 
         OsString::from("rproj")         => col(65, "\u{9276}"),    // 鉶
@@ -226,53 +226,53 @@ static EXT_ICON_MAP: Lazy<HashMap<OsString, String>> = Lazy::new(|| {
         OsString::from("sass")          => col(204, "\u{e603}"),   // 
         OsString::from("sbt")           => col(167, "\u{e737}"),   // 
         OsString::from("scala")         => col(167, "\u{e737}"),   // 
-        OsString::from("scm")           => col(16, "\u{fb26}"),    // ﬦ
+        OsString::from("scm")           => col(16, "\u{f0627}"),    // 󰘧
         OsString::from("scss")          => col(204, "\u{e603}"),   // 
         OsString::from("sh")            => col(59, "\u{e795}"),    // 
         OsString::from("sig")           => col(173, "\u{3bb}"),    // λ
         OsString::from("slim")          => col(166, "\u{e60e}"),   // 
         OsString::from("sln")           => col(98, "\u{e70c}"),    // 
         OsString::from("sml")           => col(173, "\u{3bb}"),    // λ
-        OsString::from("sol")           => col(67, "\u{fcb9}"),    // ﲹ
+        OsString::from("sol")           => col(67, "\u{f07ba}"),    // 󰞺
         OsString::from("sql")           => col(188, "\u{e706}"),   // 
         OsString::from("sqlite3")       => col(188, "\u{e706}"),   // 
         OsString::from("sqlite")        => col(188, "\u{e706}"),   // 
         OsString::from("styl")          => col(107, "\u{e600}"),   // 
         OsString::from("sublime")       => col(98, "\u{e7aa}"),    // 
         OsString::from("suo")           => col(98, "\u{e70c}"),    // 
-        OsString::from("sv")            => col(29, "\u{f85a}"),    // 
+        OsString::from("sv")            => col(29, "\u{f035b}"),    // 󰍛
         OsString::from("svelte")        => col(202, "\u{f260}"),   // 
-        OsString::from("svg")           => col(215, "\u{fc1f}"),   // ﰟ
-        OsString::from("svh")           => col(29, "\u{f85a}"),    // 
+        OsString::from("svg")           => col(215, "\u{f0720}"),   // 󰜠
+        OsString::from("svh")           => col(29, "\u{f035b}"),    // 󰍛
         OsString::from("swift")         => col(173, "\u{e755}"),   // 
-        OsString::from("tbc")           => col(67, "\u{fbd1}"),    // ﯑
+        OsString::from("tbc")           => col(67, "\u{f06d2}"),    // 󰛒
         OsString::from("t")             => col(67, "\u{e769}"),    // 
-        OsString::from("tcl")           => col(67, "\u{fbd1}"),    // ﯑
+        OsString::from("tcl")           => col(67, "\u{f06d2}"),    // 󰛒
         OsString::from("terminal")      => col(71, "\u{f489}"),    // 
         OsString::from("test.js")       => col(173, "\u{e60c}"),   // 
-        OsString::from("tex")           => col(58, "\u{fb68}"),    // ﭨ
+        OsString::from("tex")           => col(58, "\u{f0669}"),    // 󰙩
         OsString::from("tf")            => col(57, "\u{e2a6}"),    // 
         OsString::from("tfvars")        => col(57, "\u{f15b}"),    // 
         OsString::from("toml")          => col(66, "\u{e615}"),    // 
         OsString::from("tres")          => col(185, "\u{e706}"),   // 
         OsString::from("ts")            => col(67, "\u{e628}"),    // 
-        OsString::from("tscn")          => col(140, "\u{f880}"),   // 
+        OsString::from("tscn")          => col(140, "\u{f0381}"),   // 󰎁
         OsString::from("tsx")           => col(67, "\u{e7ba}"),    // 
         OsString::from("twig")          => col(107, "\u{e61c}"),   // 
-        OsString::from("txt")           => col(113, "\u{f718}"),   // 
+        OsString::from("txt")           => col(113, "\u{f0219}"),   // 󰈙
         OsString::from("vala")          => col(5, "\u{e69e}"),     // 
-        OsString::from("v")             => col(29, "\u{f85a}"),    // 
-        OsString::from("vh")            => col(29, "\u{f85a}"),    // 
-        OsString::from("vhd")           => col(29, "\u{f85a}"),    // 
-        OsString::from("vhdl")          => col(29, "\u{f85a}"),    // 
+        OsString::from("v")             => col(29, "\u{f035b}"),    // 󰍛
+        OsString::from("vh")            => col(29, "\u{f035b}"),    // 󰍛
+        OsString::from("vhd")           => col(29, "\u{f035b}"),    // 󰍛
+        OsString::from("vhdl")          => col(29, "\u{f035b}"),    // 󰍛
         OsString::from("vim")           => col(29, "\u{e62b}"),    // 
-        OsString::from("vue")           => col(107, "\u{fd42}"),   // ﵂
+        OsString::from("vue")           => col(107, "\u{f0843}"),   // 󰡃
         OsString::from("wasm")          => col(99, "\u{e6a1}"),    // 
         OsString::from("webmanifest")   => col(221, "\u{e60b}"),   // 
-        OsString::from("webpack")       => col(67, "\u{fc29}"),    // ﰩ
+        OsString::from("webpack")       => col(67, "\u{f072a}"),    // 󰜪
         OsString::from("webp")          => col(140, "\u{e60d}"),   // 
         OsString::from("xcplayground")  => col(173, "\u{e755}"),   // 
-        OsString::from("xls")           => col(23, "\u{f71a}"),    // 
+        OsString::from("xls")           => col(23, "\u{f021b}"),    // 󰈛
         OsString::from("xml")           => col(173, "\u{8b39}"),   // 謹
         OsString::from("xul")           => col(173, "\u{e745}"),   // 
         OsString::from("yaml")          => col(66, "\u{e615}"),    // 
@@ -293,9 +293,9 @@ pub fn icon_from_ext(ext: &OsStr) -> Option<&str> {
 /// Attempts to return an icon based on file type.
 pub fn icon_from_file_type(ft: &FileType) -> Option<&str> {
     if ft.is_dir() {
-        return FILE_TYPE_ICON_MAP.get("dir").map(|i| *i);
+        return FILE_TYPE_ICON_MAP.get("dir").copied();
     } else if ft.is_symlink() {
-        return FILE_TYPE_ICON_MAP.get("symlink").map(|i| *i);
+        return FILE_TYPE_ICON_MAP.get("symlink").copied();
     }
 
     None
@@ -303,7 +303,7 @@ pub fn icon_from_file_type(ft: &FileType) -> Option<&str> {
 
 /// Attempts to get the icon associated with the special file kind.
 pub fn icon_from_file_name(name: &OsStr) -> Option<&str> {
-    FILE_NAME_ICON_MAP.get(name).map(|i| *i)
+    FILE_NAME_ICON_MAP.get(name).copied()
 }
 
 /// Returns the default fallback icon.

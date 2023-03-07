@@ -73,23 +73,23 @@ impl Display for FileSize {
         let log = fbytes.log(2.0);
 
         let output = if log < 10.0 {
-            Color::Cyan.paint(format!("{} {}", self.bytes, Prefix::Base))
+            Color::RGB(0xc0, 0xc0, 0xc0).paint(format!("{} {}", self.bytes, Prefix::Base))
         } else if (10.0..20.0).contains(&log) {
-            Color::Yellow.paint(format!(
+            Color::RGB(0x90, 0xee, 0x90).paint(format!(
                 "{:.scale$} {}",
                 fbytes / 1024.0_f64,
                 Prefix::Kibi,
                 scale = self.scale
             ))
         } else if (20.0..30.0).contains(&log) {
-            Color::Green.paint(format!(
+            Color::RGB(0xf0, 0xe6, 0x8c).paint(format!(
                 "{:.scale$} {}",
                 fbytes / 1024.0_f64.powi(2),
                 Prefix::Mebi,
                 scale = self.scale
             ))
         } else {
-            Color::Red.paint(format!(
+            Color::RGB(0xff, 0x7f, 0x50).paint(format!(
                 "{:.scale$} {}",
                 fbytes / 1024.0_f64.powi(3),
                 Prefix::Gibi,

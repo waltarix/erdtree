@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 use super::node::Node;
 use crate::cli;
 use std::{cmp::Ordering, convert::From};

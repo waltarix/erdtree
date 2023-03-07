@@ -63,11 +63,11 @@ pub struct Clargs {
     pub scale: usize,
 
     /// Sort-order to display directory content
-    #[arg(short, long, value_enum, default_value_t = Order::None)]
+    #[arg(short, long, value_enum, default_value_t = Order::Name)]
     sort: Order,
 
     /// Always sorts directories above files
-    #[arg(long)]
+    #[arg(short = 'D', long)]
     dirs_first: bool,
 
     /// Traverse symlink directories and consider their disk usage; disabled by default
@@ -188,7 +188,7 @@ impl TryFrom<&Clargs> for WalkParallel {
 pub enum Error {
     InvalidGlobPatterns(ignore::Error),
     DirNotFound(String),
-    PathCanonicalizationError(io::Error),
+    PathCanonicalization(io::Error),
 }
 
 impl Display for Error {
@@ -196,7 +196,7 @@ impl Display for Error {
         match self {
             Error::InvalidGlobPatterns(e) => write!(f, "Invalid glob patterns: {e}"),
             Error::DirNotFound(e) => write!(f, "{e}"),
-            Error::PathCanonicalizationError(e) => write!(f, "{e}"),
+            Error::PathCanonicalization(e) => write!(f, "{e}"),
         }
     }
 }
@@ -211,6 +211,6 @@ impl From<ignore::Error> for Error {
 
 impl From<io::Error> for Error {
     fn from(value: io::Error) -> Self {
-        Self::PathCanonicalizationError(value)
+        Self::PathCanonicalization(value)
     }
 }

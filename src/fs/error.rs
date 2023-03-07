@@ -8,7 +8,7 @@ use std::{
 /// Errors that may occur during filesystem traversal.
 #[derive(Debug)]
 pub enum Error {
-    CliError(cli::Error),
+    Cli(cli::Error),
     ExpectedParent,
     MissingRoot,
 }
@@ -16,7 +16,7 @@ pub enum Error {
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Error::CliError(e) => write!(f, "{e}"),
+            Error::Cli(e) => write!(f, "{e}"),
             Error::ExpectedParent => write!(f, "File expected to have parent"),
             Error::MissingRoot => write!(f, "Failed to compute root node"),
         }
@@ -27,6 +27,6 @@ impl StdError for Error {}
 
 impl From<cli::Error> for Error {
     fn from(e: cli::Error) -> Self {
-        Self::CliError(e)
+        Self::Cli(e)
     }
 }
