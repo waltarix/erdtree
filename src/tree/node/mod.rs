@@ -42,6 +42,7 @@ pub struct Node {
     file_size: Option<FileSize>,
     style: Option<Style>,
     symlink_target: Option<PathBuf>,
+    symlink_target_style: Option<Style>,
     inode: Option<Inode>,
 
     #[cfg(unix)]
@@ -56,6 +57,7 @@ impl Node {
         file_size: Option<FileSize>,
         style: Option<Style>,
         symlink_target: Option<PathBuf>,
+        symlink_target_style: Option<Style>,
         inode: Option<Inode>,
         #[cfg(unix)] unix_attrs: unix::Attrs,
     ) -> Self {
@@ -65,6 +67,7 @@ impl Node {
             file_size,
             style,
             symlink_target,
+            symlink_target_style,
             inode,
             #[cfg(unix)]
             unix_attrs,
@@ -218,6 +221,11 @@ impl Node {
         self.style
     }
 
+    /// Getter for [Node]'s `symlink_target_style` field.
+    pub const fn symlink_target_style(&self) -> Option<Style> {
+        self.symlink_target_style
+    }
+
     /// See [`crate::icons::fs::compute`].
     pub fn compute_icon(&self, no_color: bool) -> Cow<'static, str> {
         if no_color {
@@ -240,11 +248,22 @@ impl TryFrom<(DirEntry, &Context)> for Node {
 
         let metadata = dir_entry.metadata()?;
 
-        let style = get_ls_colors().ok().map(|ls_colors| {
-            ls_colors
-                .style_for_path_with_metadata(path, Some(&metadata))
-                .map_or_else(Style::default, LS_Style::to_ansi_term_style)
-        });
+        let (style, link_target_style) = get_ls_colors().ok().map_or_else(
+            || (None, None),
+            |ls_colors| {
+                (
+                    ls_colors
+                        .style_for_path_with_metadata(path, Some(&metadata))
+                        .map(LS_Style::to_ansi_term_style)
+                        .or_else(|| Some(Style::default())),
+                    link_target.as_ref().and_then(|path| {
+                        ls_colors
+                            .style_for_path(path)
+                            .map(LS_Style::to_ansi_term_style)
+                    }),
+                )
+            },
+        );
 
         let file_type = dir_entry.file_type();
 
@@ -296,6 +315,7 @@ impl TryFrom<(DirEntry, &Context)> for Node {
             file_size,
             style,
             link_target,
+            link_target_style,
             inode,
             #[cfg(unix)]
             unix_attrs,

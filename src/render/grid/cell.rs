@@ -237,7 +237,7 @@ impl<'a> Cell<'a> {
             out
         };
 
-        write!(f, "{formatted_datetime}")
+        write!(f, "[{formatted_datetime}]")
     }
 
     /// Rules on how to format timestamp

@@ -1,3 +1,5 @@
+use unicode_width::UnicodeWidthChar;
+
 /// Trait that provides functionality to ANSI escaped strings to be truncated in a manner that
 /// preserves the ANSI color/style escape sequences. Consider the following:
 ///
@@ -35,9 +37,13 @@ pub trait Escaped: AsRef<str> {
                     }
                 }
             }
-            char_count += 1;
+            char_count += ch.width().unwrap_or(0);
 
-            if char_count == new_len {
+            if char_count > new_len {
+                resultant.pop();
+            }
+
+            if char_count >= new_len {
                 break;
             }
         }
@@ -61,4 +67,14 @@ fn truncate() {
     let trunc = <str as Escaped>::truncate(&base, 5);
 
     assert_eq!(control, trunc);
+
+    let base = format!("{}{}", Red.bold().paint("こんにちは、世界"), "!!!");
+    assert_eq!(
+        Red.bold().paint("こん").to_string(),
+        <str as Escaped>::truncate(&base, 5)
+    );
+    assert_eq!(
+        Red.bold().paint("こんにちは").to_string(),
+        <str as Escaped>::truncate(&base, 10)
+    );
 }
