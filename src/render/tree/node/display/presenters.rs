@@ -71,8 +71,7 @@ pub(super) fn format_size(node: &Node, ctx: &Context) -> String {
 pub(super) fn format_padded_icon(node: &Node, ctx: &Context) -> String {
     if ctx.icons {
         let icon = node.compute_icon(ctx.no_color());
-        let padding = icon.len() - 1;
-        format!("{icon:<padding$}")
+        format!("{icon} ")
     } else {
         String::new()
     }
@@ -116,7 +115,12 @@ pub(super) fn file_name(node: &Node) -> Cow<str> {
         || Node::stylize(node.file_name(), node.style),
         |target_name| {
             let link_name = node.file_name();
-            Node::stylize_link_name(link_name, target_name, node.style)
+            Node::stylize_link_name(
+                link_name,
+                target_name,
+                node.style,
+                node.symlink_target_style,
+            )
         },
     )
 }

@@ -235,27 +235,27 @@ fn init_themes_for_long_view() {
 /// Initializes all color themes.
 fn init_themes() {
     let theme = hash! {
-        "vt" => format!("{}", Color::Purple.paint(VT)),
-        "uprt" => format!("{}", Color::Purple.paint(UPRT)),
-        "drt" => format!("{}", Color::Purple.paint(DRT)),
-        "vtrt" => format!("{}", Color::Purple.paint(VTRT))
+        "vt" => format!("{}", Color::White.paint(VT)),
+        "uprt" => format!("{}", Color::White.paint(UPRT)),
+        "drt" => format!("{}", Color::White.paint(DRT)),
+        "vtrt" => format!("{}", Color::White.paint(VTRT))
     };
     TREE_THEME.set(theme).unwrap();
 
     let link_theme = hash! {
-        "vt" => format!("{}", Color::Red.paint(VT)),
-        "uprt" => format!("{}", Color::Red.paint(UPRT)),
-        "drt" => format!("{}", Color::Red.paint(DRT)),
-        "vtrt" => format!("{}", Color::Red.paint(VTRT))
+        "vt" => format!("{}", Color::White.paint(VT)),
+        "uprt" => format!("{}", Color::White.paint(UPRT)),
+        "drt" => format!("{}", Color::White.paint(DRT)),
+        "vtrt" => format!("{}", Color::White.paint(VTRT))
     };
     LINK_THEME.set(link_theme).unwrap();
 
     let du_theme = hash! {
-        "B" => Color::Cyan.bold(),
-        "KB" | "KiB" => Color::Yellow.bold(),
-        "MB" | "MiB" => Color::Green.bold(),
-        "GB" | "GiB" => Color::Red.bold(),
-        "TB" | "TiB" => Color::Blue.bold()
+        "B" => Color::RGB(0xc0, 0xc0, 0xc0).normal(),
+        "KB" | "KiB" => Color::RGB(0x90, 0xee, 0x90).normal(),
+        "MB" | "MiB" => Color::RGB(0xf0, 0xe6, 0x8c).normal(),
+        "GB" | "GiB" => Color::RGB(0xff, 0x7f, 0x50).normal(),
+        "TB" | "TiB" => Color::Red.normal()
     };
     DU_THEME.set(du_theme).unwrap();
 

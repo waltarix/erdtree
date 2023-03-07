@@ -47,6 +47,7 @@ pub struct Node {
     file_size: Option<FileSize>,
     style: Option<Style>,
     symlink_target: Option<PathBuf>,
+    symlink_target_style: Option<Style>,
     inode: Option<Inode>,
 
     #[cfg(unix)]
@@ -61,6 +62,7 @@ impl Node {
         file_size: Option<FileSize>,
         style: Option<Style>,
         symlink_target: Option<PathBuf>,
+        symlink_target_style: Option<Style>,
         inode: Option<Inode>,
 
         #[cfg(unix)] has_xattrs: bool,
@@ -71,6 +73,7 @@ impl Node {
             file_size,
             style,
             symlink_target,
+            symlink_target_style,
             inode,
             #[cfg(unix)]
             has_xattrs,
@@ -231,12 +234,22 @@ impl TryFrom<(DirEntry, &Context)> for Node {
 
         let metadata = dir_entry.metadata()?;
 
-        let style = get_ls_colors().ok().and_then(|ls_colors| {
-            ls_colors
-                .style_for_path_with_metadata(path, Some(&metadata))
-                .map(LS_Style::to_ansi_term_style)
-                .or_else(|| Some(Style::default()))
-        });
+        let (style, link_target_style) = get_ls_colors().ok().map_or_else(
+            || (None, None),
+            |ls_colors| {
+                (
+                    ls_colors
+                        .style_for_path_with_metadata(path, Some(&metadata))
+                        .map(LS_Style::to_ansi_term_style)
+                        .or_else(|| Some(Style::default())),
+                    link_target.as_ref().and_then(|path| {
+                        ls_colors
+                            .style_for_path(path)
+                            .map(LS_Style::to_ansi_term_style)
+                    }),
+                )
+            },
+        );
 
         let file_type = dir_entry.file_type();
 
@@ -267,6 +280,7 @@ impl TryFrom<(DirEntry, &Context)> for Node {
             file_size,
             style,
             link_target,
+            link_target_style,
             inode,
             #[cfg(unix)]
             has_xattrs,

@@ -30,7 +30,8 @@ fn context_from_config() -> Option<Context> {
     config::read_config_to_string(Some(TEST_CONFIG))
         .as_ref()
         .and_then(|config| {
-            let raw_config_args = config::parse(config);
+            let mut raw_config_args = config::parse(config);
+            raw_config_args.insert(0, "--");
             let config_args = Context::command().get_matches_from(raw_config_args);
             Context::from_arg_matches(&config_args).ok()
         })

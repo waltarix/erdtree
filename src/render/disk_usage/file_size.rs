@@ -144,7 +144,10 @@ impl FileSize {
             let unit = precomputed.next().unwrap();
 
             if self.uses_base_unit.is_some() {
-                format!("{:>max_size_width$} {unit:>max_size_unit_width$}", self.bytes)
+                format!(
+                    "{:>max_size_width$} {unit:>max_size_unit_width$}",
+                    self.bytes
+                )
             } else {
                 format!("{size:>max_size_width$} {unit:>max_size_unit_width$}")
             }
@@ -175,8 +178,7 @@ impl FileSize {
             + match ctx.unit {
                 PrefixKind::Si if ctx.human => 2,
                 PrefixKind::Bin if ctx.human => 3,
-                PrefixKind::Si => 0,
-                PrefixKind::Bin => 1,
+                _ => 1,
             };
 
         format!("{placeholder:>placeholder_padding$}")

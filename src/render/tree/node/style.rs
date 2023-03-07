@@ -1,5 +1,5 @@
 use super::Node;
-use ansi_term::{Color, Style};
+use ansi_term::Style;
 use std::{borrow::Cow, ffi::OsStr};
 
 #[cfg(unix)]
@@ -14,12 +14,8 @@ impl Node {
     pub(super) fn stylize(file_name: &OsStr, style: Option<Style>) -> Cow<'_, str> {
         let name = file_name.to_string_lossy();
 
-        if let Some(Style {
-            foreground: Some(ref fg),
-            ..
-        }) = style
-        {
-            Cow::from(fg.bold().paint(name).to_string())
+        if let Some(style) = style {
+            Cow::from(style.paint(name).to_string())
         } else {
             name
         }
@@ -30,17 +26,17 @@ impl Node {
         link_name: &'a OsStr,
         target_name: &'a OsStr,
         style: Option<Style>,
+        target_style: Option<Style>,
     ) -> Cow<'a, str> {
         if style.is_some() {
             let styled_name = Self::stylize(link_name, style);
-            let target_name =
-                Color::Red.paint(format!("\u{2192} {}", target_name.to_string_lossy()));
+            let target_name = Self::stylize(target_name, target_style);
 
-            Cow::from(format!("{styled_name} {target_name}"))
+            Cow::from(format!("{styled_name} -> {target_name}"))
         } else {
             let link = link_name.to_string_lossy();
             let target = target_name.to_string_lossy();
-            Cow::from(format!("{link} \u{2192} {target}"))
+            Cow::from(format!("{link} -> {target}"))
         }
     }
 
